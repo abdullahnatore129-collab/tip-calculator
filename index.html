@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>টিপ ক্যালকুলেটর</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0f6b4f">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="টিপ হিসাব">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --page: #dde5df;
+    --paper: #fbfbf8;
+    --ink: #1b2a24;
+    --muted: #5d6e66;
+    --rule: #a9b6af;
+    --field: #eef2ee;
+    --accent: #0f6b4f;
+    --on-accent: #ffffff;
+    --focus: #0f6b4f;
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --page: #101713;
+      --paper: #1a241f;
+      --ink: #e8efea;
+      --muted: #9fb0a7;
+      --rule: #3b4a43;
+      --field: #232f29;
+      --accent: #5ccb9f;
+      --on-accent: #0b1a13;
+      --focus: #5ccb9f;
+    }
+  }
+  :root[data-theme="dark"] {
+    --page: #101713;
+    --paper: #1a241f;
+    --ink: #e8efea;
+    --muted: #9fb0a7;
+    --rule: #3b4a43;
+    --field: #232f29;
+    --accent: #5ccb9f;
+    --on-accent: #0b1a13;
+    --focus: #5ccb9f;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+  html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+  body {
+    margin: 0;
+    background: var(--page);
+    color: var(--ink);
+    font-family: "Hind Siliguri", "Noto Sans Bengali", "Kalpurush", "Nirmala UI", system-ui, sans-serif;
+    font-size: 17px;
+    line-height: 1.5;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    padding: 24px 16px 40px;
+  }
+
+  .receipt {
+    width: 100%;
+    max-width: 400px;
+    background: var(--paper);
+    padding: 28px 24px 32px;
+    border-radius: 6px 6px 0 0;
+    -webkit-mask: conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) 50% / 14px 100%;
+            mask: conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) 50% / 14px 100%;
+    padding-bottom: 44px;
+    align-self: flex-start;
+  }
+
+  h1 {
+    margin: 0 0 4px;
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: 0;
+  }
+  .sub { margin: 0 0 20px; color: var(--muted); font-size: 0.95rem; }
+
+  .divider { border: 0; border-top: 2px dashed var(--rule); margin: 22px 0; }
+
+  label, .label { display: block; font-weight: 600; margin-bottom: 8px; }
+
+  .money {
+    display: flex;
+    align-items: center;
+    background: var(--field);
+    border-radius: 8px;
+    padding: 0 14px;
+    border: 2px solid transparent;
+  }
+  .money:focus-within { border-color: var(--focus); }
+  .money span { font-size: 1.4rem; color: var(--muted); margin-right: 8px; }
+  .money input {
+    flex: 1;
+    min-width: 0;
+    background: transparent;
+    border: 0;
+    outline: 0;
+    color: var(--ink);
+    font: inherit;
+    font-size: 1.6rem;
+    font-weight: 600;
+    padding: 12px 0;
+  }
+  input::placeholder { color: var(--muted); opacity: 0.6; }
+
+  .field { margin-bottom: 22px; }
+  .field:last-child { margin-bottom: 0; }
+
+  .chips { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 8px; }
+  .chip {
+    font: inherit;
+    font-weight: 600;
+    padding: 10px 0;
+    border-radius: 8px;
+    border: 2px solid var(--rule);
+    background: transparent;
+    color: var(--ink);
+    cursor: pointer;
+  }
+  .chip[aria-pressed="true"] {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--on-accent);
+  }
+  .custom { display: flex; align-items: center; gap: 10px; color: var(--muted); font-size: 0.95rem; }
+  .custom input {
+    width: 90px;
+    background: var(--field);
+    border: 2px solid transparent;
+    border-radius: 8px;
+    color: var(--ink);
+    font: inherit;
+    font-weight: 600;
+    padding: 8px 12px;
+    outline: 0;
+    text-align: right;
+  }
+  .custom input:focus { border-color: var(--focus); }
+
+  .stepper { display: flex; align-items: center; gap: 14px; }
+  .stepper button {
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    border: 2px solid var(--rule);
+    background: transparent;
+    color: var(--ink);
+    font: inherit;
+    font-size: 1.5rem;
+    line-height: 1;
+    cursor: pointer;
+  }
+  .stepper output { min-width: 56px; text-align: center; font-size: 1.6rem; font-weight: 700; }
+
+  button:focus-visible, input:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+
+  .row { display: flex; justify-content: space-between; align-items: baseline; padding: 4px 0; }
+  .row .k { color: var(--muted); }
+  .row .v { font-weight: 600; font-variant-numeric: tabular-nums; }
+  .row.total { margin-top: 6px; padding-top: 10px; border-top: 1px solid var(--rule); }
+  .row.total .k { color: var(--ink); font-weight: 600; }
+  .row.total .v { font-size: 1.25rem; }
+
+  .each {
+    margin-top: 20px;
+    padding: 18px 16px;
+    background: var(--accent);
+    color: var(--on-accent);
+    border-radius: 10px;
+    text-align: center;
+  }
+  .each .k { font-size: 0.95rem; opacity: 0.9; }
+  .each .v { font-size: 2.6rem; font-weight: 700; line-height: 1.2; font-variant-numeric: tabular-nums; word-break: break-word; }
+  .each .note { font-size: 0.85rem; opacity: 0.85; min-height: 1.3em; }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .chip, .stepper button { transition: background-color .15s, border-color .15s; }
+  }
+</style>
+</head>
+<body>
+  <main class="receipt">
+    <h1>টিপ ক্যালকুলেটর</h1>
+    <p class="sub">বিল ভাগ করুন, হিসাব মেলান।</p>
+
+    <div class="field">
+      <label for="bill">বিলের পরিমাণ</label>
+      <div class="money">
+        <span aria-hidden="true">৳</span>
+        <input id="bill" type="text" inputmode="decimal" autocomplete="off" placeholder="0">
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="label" id="tip-label">টিপ কত শতাংশ</div>
+      <div class="chips" role="group" aria-labelledby="tip-label" id="chips"></div>
+      <div class="custom">
+        <label for="tip" style="margin:0;font-weight:500">অন্য কিছু হলে</label>
+        <input id="tip" type="text" inputmode="decimal" autocomplete="off" value="১০">
+        <span>%</span>
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="label" id="ppl-label">কতজন</div>
+      <div class="stepper" role="group" aria-labelledby="ppl-label">
+        <button type="button" id="minus" aria-label="একজন কমান">−</button>
+        <output id="people" aria-live="polite">১</output>
+        <button type="button" id="plus" aria-label="একজন বাড়ান">+</button>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <div aria-live="polite">
+      <div class="row"><span class="k">বিল</span><span class="v" id="r-bill">৳ ০</span></div>
+      <div class="row"><span class="k">টিপ</span><span class="v" id="r-tip">৳ ০</span></div>
+      <div class="row total"><span class="k">মোট</span><span class="v" id="r-total">৳ ০</span></div>
+    </div>
+
+    <div class="each">
+      <div class="k">জনপ্রতি</div>
+      <div class="v" id="r-each">৳ ০</div>
+      <div class="note" id="r-note"></div>
+    </div>
+  </main>
+
+<script>
+  var QUICK = [5, 10, 15, 20];
+  var state = { tip: 10, people: 1 };
+
+  var bn = new Intl.NumberFormat('bn-BD', { maximumFractionDigits: 2 });
+  function fmt(n) { return '৳ ' + bn.format(n); }
+
+  function parse(s) {
+    var digits = '০১২৩৪৫৬৭৮৯';
+    var clean = String(s)
+      .replace(/[০-৯]/g, function (d) { return digits.indexOf(d); })
+      .replace(/[,\s]/g, '');
+    var n = parseFloat(clean);
+    return isFinite(n) && n > 0 ? n : 0;
+  }
+
+  var billEl = document.getElementById('bill');
+  var tipEl = document.getElementById('tip');
+  var chipsEl = document.getElementById('chips');
+  var peopleEl = document.getElementById('people');
+
+  QUICK.forEach(function (p) {
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'chip';
+    b.dataset.p = p;
+    b.textContent = bn.format(p) + '%';
+    b.addEventListener('click', function () {
+      state.tip = p;
+      tipEl.value = bn.format(p);
+      render();
+    });
+    chipsEl.appendChild(b);
+  });
+
+  function render() {
+    var bill = parse(billEl.value);
+    var tip = bill * state.tip / 100;
+    var total = bill + tip;
+    var each = total / state.people;
+
+    document.getElementById('r-bill').textContent = fmt(bill);
+    document.getElementById('r-tip').textContent = fmt(tip);
+    document.getElementById('r-total').textContent = fmt(total);
+    document.getElementById('r-each').textContent = fmt(each);
+    document.getElementById('r-note').textContent =
+      state.people > 1 && bill > 0 ? bn.format(state.people) + ' জনের মধ্যে সমান ভাগে' : '';
+    peopleEl.textContent = bn.format(state.people);
+
+    Array.prototype.forEach.call(chipsEl.children, function (c) {
+      c.setAttribute('aria-pressed', String(Number(c.dataset.p) === state.tip));
+    });
+  }
+
+  billEl.addEventListener('input', render);
+  tipEl.addEventListener('input', function () {
+    state.tip = parse(tipEl.value);
+    render();
+  });
+  document.getElementById('minus').addEventListener('click', function () {
+    if (state.people > 1) { state.people--; render(); }
+  });
+  document.getElementById('plus').addEventListener('click', function () {
+    if (state.people < 99) { state.people++; render(); }
+  });
+
+  render();
+
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('sw.js').catch(function () {});
+    });
+  }
+</script>
+</body>
+</html>
